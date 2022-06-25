@@ -1,7 +1,7 @@
 module Control.Monad.Error.Hoist where
 
 import Control.Applicative (pure)
-import Control.Bind ((>>=))
+import Control.Bind (class Bind, (>>=))
 import Control.Monad.Error.Class (class MonadThrow, throwError)
 import Control.Monad.Except (ExceptT, runExceptT)
 import Data.Either (Either, either)
@@ -40,3 +40,13 @@ hoistErrorFlipped_ ∷ ∀ x e m n a. HoistError x e n m ⇒ n a → e → m a
 hoistErrorFlipped_ = flip hoistError_
 
 infixl 8 hoistErrorFlipped_ as <?>
+
+hoistErrorM
+  ∷ ∀ m a e e' n. Bind m ⇒ HoistError e e' n m ⇒ (e → e') → m (n a) → m a
+hoistErrorM f m = m >>= hoistError f
+
+hoistErrorMFlipped
+  ∷ ∀ m a e e' n. Bind m ⇒ HoistError e e' n m ⇒ m (n a) → (e → e') → m a
+hoistErrorMFlipped = flip hoistErrorM
+
+infixl 8 hoistErrorMFlipped as <!%?>
