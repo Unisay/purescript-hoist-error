@@ -1,4 +1,4 @@
-{ name = "my-project"
+{ name = "purescript-hoist-error"
 , dependencies =
   [ "aff"
   , "bifunctors"
