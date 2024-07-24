@@ -3,7 +3,7 @@ module Control.Monad.Error.Hoist where
 import Control.Applicative (pure)
 import Control.Bind ((>>=))
 import Control.Monad.Error.Class (class MonadThrow, throwError)
-import Control.Monad.Except (ExceptT, runExceptT)
+import Control.Monad.Except (ExceptT, runExceptT, runExcept)
 import Data.Either (Either, either)
 import Data.Function (flip, (<<<))
 import Data.Maybe (Maybe, maybe)
@@ -24,6 +24,10 @@ instance MonadThrow e' m ⇒ HoistError e e' (Either e) m where
 instance MonadThrow e' m ⇒ HoistError e e' (ExceptT e m) m where
   hoistError ∷ ∀ a. (e → e') → ExceptT e m a → m a
   hoistError f m = runExceptT m >>= hoistError f
+
+instance MonadThrow e' m ⇒ HoistError e e' (Except e) m where
+  hoistError ∷ ∀ a. (e → e') → Except e a -> m a
+  hoistError f m = runExcept m # hoistError f
 
 hoistErrorFlipped ∷ ∀ e e' n m a. HoistError e e' m n ⇒ m a → (e → e') → n a
 hoistErrorFlipped = flip hoistError
